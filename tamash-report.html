@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>tamash-playwright report</title>
+<style>
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --border: #e1e4ea;
+  --text: #1a2233;
+  --text-muted: #6b7385;
+  --accent: #3d5a80;
+  --pass: #2f9e6e;
+  --pass-bg: #e7f6ef;
+  --fail: #d64545;
+  --fail-bg: #fbeaea;
+  --healed: #c9820c;
+  --healed-bg: #fbf1de;
+  --skip: #8b93a3;
+  --skip-bg: #eef0f3;
+  --cat-action: #5b6b85;
+  --cat-assert: #7c3aed;
+  --cat-fixture: #0f766e;
+  /* dot(8px) + gap + bar-track(140px) + gap + action-badge(56px) + gap — aligns note/locator/
+     value/screenshot lines under the step title's own column, whatever's in the row before it. */
+  --step-indent: calc(8px + 0.6rem + 140px + 0.6rem + 56px + 0.6rem);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 2.5rem 1.5rem 4rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+main {
+  max-width: 920px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+header.summary {
+  max-width: 920px;
+  margin: 0 auto 2rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.1rem;
+  text-wrap: balance;
+}
+
+.stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  min-width: 88px;
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.15rem;
+}
+
+.stat.pass .stat-value { color: var(--pass); }
+.stat.fail .stat-value { color: var(--fail); }
+.stat.healed .stat-value { color: var(--healed); }
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  max-width: 920px;
+  margin: 0 auto 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .charts { grid-template-columns: 1fr; }
+}
+
+.chart {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+.chart h2 {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.chart-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.28rem 0;
+}
+
+.chart-label {
+  flex-shrink: 0;
+  width: 40%;
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chart-track {
+  flex: 1;
+  height: 10px;
+  background: var(--bg);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.chart-bar {
+  height: 100%;
+  border-radius: 5px;
+  background: var(--accent);
+}
+
+.chart-row.failed .chart-bar { background: var(--fail); }
+
+.chart-value {
+  flex-shrink: 0;
+  min-width: 64px;
+  text-align: right;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.chart-empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.test {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.test-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+}
+
+.badge.passed { color: var(--pass); background: var(--pass-bg); }
+.badge.failed { color: var(--fail); background: var(--fail-bg); }
+.badge.skipped { color: var(--skip); background: var(--skip-bg); }
+
+.test-title {
+  flex: 1;
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.test-meta {
+  flex-shrink: 0;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.healed-chip {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--healed);
+  background: var(--healed-bg);
+  padding: 0.15rem 0.45rem;
+  border-radius: 5px;
+  font-weight: 600;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.test.open .chevron { transform: rotate(90deg); }
+
+.steps {
+  display: none;
+  border-top: 1px solid var(--border);
+  padding: 0.6rem 1.1rem 0.9rem;
+}
+
+.test.open .steps { display: block; }
+
+.test-meta-row {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.phase-breakdown {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.filter-chips {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.filter-chip {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--surface);
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-chip.active {
+  color: var(--surface);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.step-group {
+  display: block;
+}
+
+.step-group[hidden] { display: none; }
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0;
+}
+
+.step-category {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cat-action);
+}
+
+.step-group[data-category="assert"] .step-category { background: var(--cat-assert); }
+.step-group[data-category="fixture"] .step-category { background: var(--cat-fixture); }
+
+.step-bar-track {
+  flex-shrink: 0;
+  width: 140px;
+  height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.step-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--text-muted);
+}
+
+.step.healed .step-bar { background: var(--healed); }
+.step.failed .step-bar { background: var(--fail); }
+
+.step-title {
+  flex: 1;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.step.healed .step-title { color: var(--healed); }
+.step.failed .step-title { color: var(--fail); }
+
+.step-action {
+  flex-shrink: 0;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.08rem 0.4rem;
+  min-width: 56px;
+  text-align: center;
+}
+
+.step.healed .step-action { color: var(--healed); border-color: var(--healed); }
+.step.failed .step-action { color: var(--fail); border-color: var(--fail); }
+
+.step-locator {
+  padding-left: var(--step-indent);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: -0.05rem 0 0.3rem;
+}
+
+.step-value {
+  padding-left: var(--step-indent);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.76rem;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: -0.05rem 0 0.3rem;
+}
+
+.step-value::before {
+  content: "→  ";
+  color: var(--text-muted);
+}
+
+.step-duration {
+  flex-shrink: 0;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  min-width: 48px;
+  text-align: right;
+}
+
+.step-note {
+  margin: 0.15rem 0 0.35rem;
+  padding-left: var(--step-indent);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.step-note.healed-note { color: var(--healed); }
+
+.step-screenshot {
+  padding-left: var(--step-indent);
+  margin: 0.2rem 0 0.4rem;
+}
+
+.step-screenshot img {
+  max-width: 220px;
+  max-height: 140px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: zoom-in;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 3rem 0;
+}
+</style>
+</head>
+<body>
+  <header class="summary">
+    <h1>tamash-playwright report</h1>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-value">2</span><span class="stat-label">tests</span></div>
+      <div class="stat pass"><span class="stat-value">2</span><span class="stat-label">passed</span></div>
+      <div class="stat fail"><span class="stat-value">0</span><span class="stat-label">failed</span></div>
+      <div class="stat"><span class="stat-value">0</span><span class="stat-label">skipped</span></div>
+      <div class="stat healed"><span class="stat-value">3</span><span class="stat-label">healed steps</span></div>
+      <div class="stat"><span class="stat-value">2,308</span><span class="stat-label">tokens used</span></div>
+      <div class="stat"><span class="stat-value">117.1s</span><span class="stat-label">duration</span></div>
+    </div>
+  </header>
+  <div class="charts">
+    <div class="chart">
+      <h2>Duration by test</h2>
+      <div class="chart-row "><div class="chart-label">test_create_employee_using_page_object_model[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:100%"></div></div><div class="chart-value">81.2s</div></div>
+<div class="chart-row "><div class="chart-label">test_login_using_css_selectors[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:44%"></div></div><div class="chart-value">35.9s</div></div>
+    </div>
+    <div class="chart">
+      <h2>Tokens by test</h2>
+      <div class="chart-row "><div class="chart-label">test_create_employee_using_page_object_model[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:100%"></div></div><div class="chart-value">1,698</div></div>
+<div class="chart-row "><div class="chart-label">test_login_using_css_selectors[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:36%"></div></div><div class="chart-value">610</div></div>
+    </div>
+  </div>
+  <main>
+    <div class="test">
+  <div class="test-header">
+    <span class="badge passed">passed</span>
+    <span class="test-title">tests/test_pomtest.py::test_create_employee_using_page_object_model[chromium]</span>
+    <span class="healed-chip">2 healed</span>
+    <div class="test-meta-row">
+      <span class="test-meta">81215ms</span>
+      <span class="phase-breakdown">setup 4.8s &middot; call 76.3s &middot; teardown 0.0s</span>
+    </div>
+    <span class="chevron">&#9656;</span>
+  </div>
+  <div class="steps">
+    <div class="filter-chips"><span class="filter-chip active" data-filter="all">All</span>
+<span class="filter-chip" data-filter="action">Action</span>
+<span class="filter-chip" data-filter="fixture">Fixture</span></div>
+    <div class="step-group" data-category="fixture"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">setup</span><div class="step-title">page</div><div class="step-duration">296ms</div></div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:9%"></div></div><span class="step-action">goto</span><div class="step-title">page action goto</div><div class="step-duration">2930ms</div></div><div class="step-value">/</div></div>
+<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:100%"></div></div><span class="step-action">fill</span><div class="step-title">Username Textbox</div><div class="step-duration">31639ms</div></div><div class="step-locator">placeholder &quot;Username1&quot;</div><div class="step-value">testadmin</div><div class="step-note healed-note">healed via ollama:gpt-oss:120b &mdash; recovered as role:textbox:Username &mdash; 586 tokens (484 in, 102 out)</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">Password Textbox</div><div class="step-duration">17ms</div></div><div class="step-locator">placeholder &quot;Password&quot;</div><div class="step-value">Vibetestq@123#</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Login Button</div><div class="step-duration">46ms</div></div><div class="step-locator">role:button &quot;Login&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">PIM Link</div><div class="step-duration">982ms</div></div><div class="step-locator">role:link &quot;PIM&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Add Button</div><div class="step-duration">549ms</div></div><div class="step-locator">selector &quot;//button[normalize-space()=&#x27;Add&#x27;]&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">First Name Textbox</div><div class="step-duration">893ms</div></div><div class="step-locator">placeholder &quot;First Name&quot;</div><div class="step-value">John</div></div>
+<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:99%"></div></div><span class="step-action">fill</span><div class="step-title">Last Name Textbox</div><div class="step-duration">31310ms</div></div><div class="step-locator">placeholder &quot;Last Name1&quot;</div><div class="step-value">Smith</div><div class="step-note healed-note">healed via ollama:gpt-oss:120b &mdash; recovered as role:textbox:Last Name &mdash; 1112 tokens (1023 in, 89 out)</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Save Button</div><div class="step-duration">38ms</div></div><div class="step-locator">role:button &quot;Save&quot;</div></div>
+  </div>
+</div>
+<div class="test">
+  <div class="test-header">
+    <span class="badge passed">passed</span>
+    <span class="test-title">tests/test_sampletest.py::test_login_using_css_selectors[chromium]</span>
+    <span class="healed-chip">1 healed</span>
+    <div class="test-meta-row">
+      <span class="test-meta">35897ms</span>
+      <span class="phase-breakdown">setup 0.2s &middot; call 35.3s &middot; teardown 0.5s</span>
+    </div>
+    <span class="chevron">&#9656;</span>
+  </div>
+  <div class="steps">
+    <div class="filter-chips"><span class="filter-chip active" data-filter="all">All</span>
+<span class="filter-chip" data-filter="action">Action</span>
+<span class="filter-chip" data-filter="fixture">Fixture</span></div>
+    <div class="step-group" data-category="fixture"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">setup</span><div class="step-title">page</div><div class="step-duration">162ms</div></div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:5%"></div></div><span class="step-action">goto</span><div class="step-title">page action goto</div><div class="step-duration">1696ms</div></div><div class="step-value">/</div></div>
+<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:100%"></div></div><span class="step-action">fill</span><div class="step-title">User Name Textbox</div><div class="step-duration">31839ms</div></div><div class="step-locator">selector &quot;input[name=&quot;username1&quot;]&quot;</div><div class="step-value">testadmin</div><div class="step-note healed-note">healed via ollama:gpt-oss:120b &mdash; recovered as role:textbox:Username &mdash; 610 tokens (485 in, 125 out)</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">Password Textbox</div><div class="step-duration">13ms</div></div><div class="step-locator">selector &quot;input[placeholder=&#x27;Password&#x27;]&quot;</div><div class="step-value">Vibetestq@123#</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Login Button</div><div class="step-duration">49ms</div></div><div class="step-locator">selector &quot;button[type=&#x27;submit&#x27;]&quot;</div></div>
+  </div>
+</div>
+  </main>
+  <script>
+document.querySelectorAll('.test-header').forEach(function (el) {
+  el.addEventListener('click', function () {
+    el.parentElement.classList.toggle('open');
+  });
+});
+
+document.querySelectorAll('.filter-chips').forEach(function (chips) {
+  chips.addEventListener('click', function (event) {
+    var chip = event.target.closest('.filter-chip');
+    if (!chip) return;
+    var category = chip.dataset.filter;
+    chips.querySelectorAll('.filter-chip').forEach(function (c) {
+      c.classList.toggle('active', c === chip);
+    });
+    var stepsEl = chips.closest('.steps');
+    stepsEl.querySelectorAll('.step-group').forEach(function (group) {
+      var show = category === 'all' || group.dataset.category === category;
+      group.hidden = !show;
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -6,3 +6,5 @@ test-results/
 playwright-report/
 .pytest_cache/
 *.egg-info/
+report.html
+tamash_playwright_python_pytest.egg-info
