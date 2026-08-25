@@ -8,3 +8,4 @@ playwright-report/
 *.egg-info/
 report.html
 tamash_playwright_python_pytest.egg-info
+.tamash-playwright/

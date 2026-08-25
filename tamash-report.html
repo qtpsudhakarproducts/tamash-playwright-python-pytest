@@ -429,20 +429,20 @@ h1 {
       <div class="stat fail"><span class="stat-value">0</span><span class="stat-label">failed</span></div>
       <div class="stat"><span class="stat-value">0</span><span class="stat-label">skipped</span></div>
       <div class="stat healed"><span class="stat-value">3</span><span class="stat-label">healed steps</span></div>
-      <div class="stat"><span class="stat-value">2,308</span><span class="stat-label">tokens used</span></div>
-      <div class="stat"><span class="stat-value">117.1s</span><span class="stat-label">duration</span></div>
+      <div class="stat"><span class="stat-value">272</span><span class="stat-label">tokens used</span></div>
+      <div class="stat"><span class="stat-value">162.8s</span><span class="stat-label">duration</span></div>
     </div>
   </header>
   <div class="charts">
     <div class="chart">
       <h2>Duration by test</h2>
-      <div class="chart-row "><div class="chart-label">test_create_employee_using_page_object_model[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:100%"></div></div><div class="chart-value">81.2s</div></div>
-<div class="chart-row "><div class="chart-label">test_login_using_css_selectors[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:44%"></div></div><div class="chart-value">35.9s</div></div>
+      <div class="chart-row "><div class="chart-label">test_create_employee_using_page_object_model[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:100%"></div></div><div class="chart-value">113.6s</div></div>
+<div class="chart-row "><div class="chart-label">test_login_using_css_selectors[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:43%"></div></div><div class="chart-value">49.2s</div></div>
     </div>
     <div class="chart">
       <h2>Tokens by test</h2>
-      <div class="chart-row "><div class="chart-label">test_create_employee_using_page_object_model[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:100%"></div></div><div class="chart-value">1,698</div></div>
-<div class="chart-row "><div class="chart-label">test_login_using_css_selectors[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:36%"></div></div><div class="chart-value">610</div></div>
+      <div class="chart-row "><div class="chart-label">test_create_employee_using_page_object_model[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:100%"></div></div><div class="chart-value">162</div></div>
+<div class="chart-row "><div class="chart-label">test_login_using_css_selectors[chromium]</div><div class="chart-track"><div class="chart-bar" style="width:68%"></div></div><div class="chart-value">110</div></div>
     </div>
   </div>
   <main>
@@ -452,8 +452,8 @@ h1 {
     <span class="test-title">tests/test_pomtest.py::test_create_employee_using_page_object_model[chromium]</span>
     <span class="healed-chip">2 healed</span>
     <div class="test-meta-row">
-      <span class="test-meta">81215ms</span>
-      <span class="phase-breakdown">setup 4.8s &middot; call 76.3s &middot; teardown 0.0s</span>
+      <span class="test-meta">113638ms</span>
+      <span class="phase-breakdown">setup 10.3s &middot; call 103.2s &middot; teardown 0.1s</span>
     </div>
     <span class="chevron">&#9656;</span>
   </div>
@@ -461,16 +461,18 @@ h1 {
     <div class="filter-chips"><span class="filter-chip active" data-filter="all">All</span>
 <span class="filter-chip" data-filter="action">Action</span>
 <span class="filter-chip" data-filter="fixture">Fixture</span></div>
-    <div class="step-group" data-category="fixture"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">setup</span><div class="step-title">page</div><div class="step-duration">296ms</div></div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:9%"></div></div><span class="step-action">goto</span><div class="step-title">page action goto</div><div class="step-duration">2930ms</div></div><div class="step-value">/</div></div>
-<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:100%"></div></div><span class="step-action">fill</span><div class="step-title">Username Textbox</div><div class="step-duration">31639ms</div></div><div class="step-locator">placeholder &quot;Username1&quot;</div><div class="step-value">testadmin</div><div class="step-note healed-note">healed via ollama:gpt-oss:120b &mdash; recovered as role:textbox:Username &mdash; 586 tokens (484 in, 102 out)</div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">Password Textbox</div><div class="step-duration">17ms</div></div><div class="step-locator">placeholder &quot;Password&quot;</div><div class="step-value">Vibetestq@123#</div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Login Button</div><div class="step-duration">46ms</div></div><div class="step-locator">role:button &quot;Login&quot;</div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">PIM Link</div><div class="step-duration">982ms</div></div><div class="step-locator">role:link &quot;PIM&quot;</div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Add Button</div><div class="step-duration">549ms</div></div><div class="step-locator">selector &quot;//button[normalize-space()=&#x27;Add&#x27;]&quot;</div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">First Name Textbox</div><div class="step-duration">893ms</div></div><div class="step-locator">placeholder &quot;First Name&quot;</div><div class="step-value">John</div></div>
-<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:99%"></div></div><span class="step-action">fill</span><div class="step-title">Last Name Textbox</div><div class="step-duration">31310ms</div></div><div class="step-locator">placeholder &quot;Last Name1&quot;</div><div class="step-value">Smith</div><div class="step-note healed-note">healed via ollama:gpt-oss:120b &mdash; recovered as role:textbox:Last Name &mdash; 1112 tokens (1023 in, 89 out)</div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Save Button</div><div class="step-duration">38ms</div></div><div class="step-locator">role:button &quot;Save&quot;</div></div>
+    <div class="step-group" data-category="fixture"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">setup</span><div class="step-title">page</div><div class="step-duration">414ms</div></div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:5%"></div></div><span class="step-action">goto</span><div class="step-title">page action goto</div><div class="step-duration">2301ms</div></div><div class="step-value">/</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">aria_snapshot</span><div class="step-title">selector &quot;body&quot;</div><div class="step-duration">29ms</div></div><div class="step-locator">selector &quot;body&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:100%"></div></div><span class="step-action">fill</span><div class="step-title">Username Textbox</div><div class="step-duration">44701ms</div></div><div class="step-locator">placeholder &quot;Username1&quot;</div><div class="step-value">testadmin</div><div class="step-note healed-note">healed via copilot-subscription:mai-code-1-flash-picker &mdash; recovered as role:textbox:Username &mdash; tokens (77 out)</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">Password Textbox</div><div class="step-duration">22ms</div></div><div class="step-locator">placeholder &quot;Password&quot;</div><div class="step-value">Vibetestq@123#</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Login Button</div><div class="step-duration">1330ms</div></div><div class="step-locator">role:button &quot;Login&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">PIM Link</div><div class="step-duration">1878ms</div></div><div class="step-locator">role:link &quot;PIM&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Add Button</div><div class="step-duration">593ms</div></div><div class="step-locator">selector &quot;//button[normalize-space()=&#x27;Add&#x27;]&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">First Name Textbox</div><div class="step-duration">1066ms</div></div><div class="step-locator">placeholder &quot;First Name&quot;</div><div class="step-value">John</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">aria_snapshot</span><div class="step-title">selector &quot;body&quot;</div><div class="step-duration">63ms</div></div><div class="step-locator">selector &quot;body&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:94%"></div></div><span class="step-action">fill</span><div class="step-title">Last Name Textbox</div><div class="step-duration">42034ms</div></div><div class="step-locator">placeholder &quot;Last Name1&quot;</div><div class="step-value">Smith</div><div class="step-note healed-note">healed via copilot-subscription:mai-code-1-flash-picker &mdash; recovered as role:textbox:Last Name &mdash; tokens (85 out)</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Save Button</div><div class="step-duration">56ms</div></div><div class="step-locator">role:button &quot;Save&quot;</div></div>
   </div>
 </div>
 <div class="test">
@@ -479,8 +481,8 @@ h1 {
     <span class="test-title">tests/test_sampletest.py::test_login_using_css_selectors[chromium]</span>
     <span class="healed-chip">1 healed</span>
     <div class="test-meta-row">
-      <span class="test-meta">35897ms</span>
-      <span class="phase-breakdown">setup 0.2s &middot; call 35.3s &middot; teardown 0.5s</span>
+      <span class="test-meta">49210ms</span>
+      <span class="phase-breakdown">setup 0.2s &middot; call 48.5s &middot; teardown 0.5s</span>
     </div>
     <span class="chevron">&#9656;</span>
   </div>
@@ -488,11 +490,12 @@ h1 {
     <div class="filter-chips"><span class="filter-chip active" data-filter="all">All</span>
 <span class="filter-chip" data-filter="action">Action</span>
 <span class="filter-chip" data-filter="fixture">Fixture</span></div>
-    <div class="step-group" data-category="fixture"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">setup</span><div class="step-title">page</div><div class="step-duration">162ms</div></div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:5%"></div></div><span class="step-action">goto</span><div class="step-title">page action goto</div><div class="step-duration">1696ms</div></div><div class="step-value">/</div></div>
-<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:100%"></div></div><span class="step-action">fill</span><div class="step-title">User Name Textbox</div><div class="step-duration">31839ms</div></div><div class="step-locator">selector &quot;input[name=&quot;username1&quot;]&quot;</div><div class="step-value">testadmin</div><div class="step-note healed-note">healed via ollama:gpt-oss:120b &mdash; recovered as role:textbox:Username &mdash; 610 tokens (485 in, 125 out)</div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">Password Textbox</div><div class="step-duration">13ms</div></div><div class="step-locator">selector &quot;input[placeholder=&#x27;Password&#x27;]&quot;</div><div class="step-value">Vibetestq@123#</div></div>
-<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Login Button</div><div class="step-duration">49ms</div></div><div class="step-locator">selector &quot;button[type=&#x27;submit&#x27;]&quot;</div></div>
+    <div class="step-group" data-category="fixture"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">setup</span><div class="step-title">page</div><div class="step-duration">181ms</div></div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:9%"></div></div><span class="step-action">goto</span><div class="step-title">page action goto</div><div class="step-duration">3843ms</div></div><div class="step-value">/</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">aria_snapshot</span><div class="step-title">selector &quot;body&quot;</div><div class="step-duration">33ms</div></div><div class="step-locator">selector &quot;body&quot;</div></div>
+<div class="step-group" data-category="action"><div class="step healed"><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:100%"></div></div><span class="step-action">fill</span><div class="step-title">User Name Textbox</div><div class="step-duration">41506ms</div></div><div class="step-locator">selector &quot;input[name=&quot;username1&quot;]&quot;</div><div class="step-value">testadmin</div><div class="step-note healed-note">healed via copilot-subscription:mai-code-1-flash-picker &mdash; recovered as role:textbox:Username &mdash; tokens (110 out)</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">fill</span><div class="step-title">Password Textbox</div><div class="step-duration">22ms</div></div><div class="step-locator">selector &quot;input[placeholder=&#x27;Password&#x27;]&quot;</div><div class="step-value">Vibetestq@123#</div></div>
+<div class="step-group" data-category="action"><div class="step "><span class="step-category"></span><div class="step-bar-track"><div class="step-bar" style="width:4%"></div></div><span class="step-action">click</span><div class="step-title">Login Button</div><div class="step-duration">1514ms</div></div><div class="step-locator">selector &quot;button[type=&#x27;submit&#x27;]&quot;</div></div>
   </div>
 </div>
   </main>

@@ -1,21 +1,85 @@
 name: Pytest Tests
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
+  workflow_dispatch: {}
+
 jobs:
   test:
+    name: Self-healing tests (${{ matrix.provider }})
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    strategy:
+      # Each provider gets its own full test run — a broken provider (bad token, rate limit,
+      # SDK-side outage) shouldn't hide the other two's results, so this deliberately doesn't
+      # stop the matrix early.
+      fail-fast: false
+      matrix:
+        provider: [ollama, claude-subscription, copilot-subscription]
+    env:
+      HEALER_ENABLED: "true"
+      HEALER_PROVIDER: ${{ matrix.provider }}
+      APP_BASE_URL: "https://qtpsudhakar-vibetestq-hrm.up.railway.app/"
+      # Ollama Cloud — plain API key, no extra setup needed.
+      OLLAMA_MODEL: "gpt-oss:120b"
+      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+      # claude-agent-sdk's own documented CI auth path (see `claude setup-token`) — takes the
+      # place of an interactive `claude login`.
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      # github-copilot-sdk falls back to GITHUB_TOKEN when there's no interactive `copilot`
+      # login — deliberately sourced from a *repo secret* (COPILOT_GITHUB_TOKEN, a PAT with
+      # Copilot Requests access) rather than the workflow's own automatic ${{ github.token }},
+      # since that automatic token has no Copilot access at all regardless of permissions.
+      GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      run: pip install -e .
-    - name: Install Playwright Browsers
-      run: playwright install --with-deps chromium
-    - name: Run pytest
-      run: pytest -v
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install project dependencies
+        run: pip install -e .
+
+      - name: Install Playwright browsers
+        run: playwright install --with-deps chromium
+
+      # Only the provider actually under test in this matrix leg needs its extra installed — the
+      # other two providers' packages would just sit unused otherwise.
+      - name: Install claude-agent-sdk
+        if: matrix.provider == 'claude-subscription'
+        run: pip install claude-agent-sdk
+
+      - name: Install the native Claude Code CLI
+        if: matrix.provider == 'claude-subscription'
+        # claude-agent-sdk refuses to run the npm-installed `claude.cmd` shim, but that's a
+        # Windows-only guard (see the main package's README "Known limitations") — on Linux, npm
+        # produces a real executable, so this is the standard install path with no workaround
+        # needed. Ubuntu runners ship Node.js already.
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Install github-copilot-sdk
+        if: matrix.provider == 'copilot-subscription'
+        run: pip install github-copilot-sdk
+
+      - name: Run pytest
+        run: pytest -v --tamash-report=tamash-report.html
+
+      - name: Upload self-healing report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tamash-report-${{ matrix.provider }}
+          path: tamash-report.html
+          if-no-files-found: ignore
+
+      - name: Upload pytest-html report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report-${{ matrix.provider }}
+          path: report.html
+          if-no-files-found: ignore
