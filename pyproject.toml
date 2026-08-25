@@ -11,7 +11,7 @@ dependencies = [
     # release (0.2.0), never a pre-release, since pip excludes pre-releases from a plain version
     # range unless the range itself names one. Bump this pin (or relax back to a stable ">=")
     # once 0.3.0 ships as a real release.
-    "tamash-playwright==0.3.0b1",
+    "tamash-playwright==0.3.0b2",
     "python-dotenv>=1.0.0",
 ]
 

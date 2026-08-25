@@ -17,6 +17,13 @@ jobs:
       # SDK-side outage) shouldn't hide the other two's results, so this deliberately doesn't
       # stop the matrix early.
       fail-fast: false
+      # APP_BASE_URL points at one shared *live* external demo app, not a disposable per-job
+      # instance — confirmed via a real CI failure that running all 3 legs in parallel lets two
+      # of them create an employee at the same moment and collide on OrangeHRM's server-assigned
+      # Employee Id ("Employee Id already exists"), failing test_pomtest.py for reasons that have
+      # nothing to do with the provider under test. Serialize the matrix so only one leg touches
+      # the shared app's state at a time — slower, but deterministic.
+      max-parallel: 1
       matrix:
         provider: [ollama, claude-subscription, copilot-subscription]
     env:
