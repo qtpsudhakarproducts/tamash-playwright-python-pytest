@@ -14,18 +14,27 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       # Each provider gets its own full test run — a broken provider (bad token, rate limit,
-      # SDK-side outage) shouldn't hide the other two's results, so this deliberately doesn't
-      # stop the matrix early.
+      # SDK-side outage) shouldn't hide the other's result, so this deliberately doesn't stop the
+      # matrix early.
       fail-fast: false
       # APP_BASE_URL points at one shared *live* external demo app, not a disposable per-job
-      # instance — confirmed via a real CI failure that running all 3 legs in parallel lets two
-      # of them create an employee at the same moment and collide on OrangeHRM's server-assigned
-      # Employee Id ("Employee Id already exists"), failing test_pomtest.py for reasons that have
-      # nothing to do with the provider under test. Serialize the matrix so only one leg touches
-      # the shared app's state at a time — slower, but deterministic.
+      # instance — confirmed via a real CI failure that running legs in parallel lets two of them
+      # create an employee at the same moment and collide on OrangeHRM's server-assigned Employee
+      # Id ("Employee Id already exists"), failing test_pomtest.py for reasons that have nothing
+      # to do with the provider under test. Serialize the matrix so only one leg touches the
+      # shared app's state at a time — slower, but deterministic.
       max-parallel: 1
+      # One API-key provider (ollama — this project's own established free-tier CI convention,
+      # already used in tamash-playwright's own pipeline, no cost/rate-limit surprises seen) and
+      # one subscription provider (claude-subscription, the more mature of the two) is enough to
+      # validate tamash-playwright itself works end to end in a real project. Per-vendor response
+      # parsing for every other provider (openai/anthropic/gemini/copilot-subscription) is already
+      # covered by tamash-playwright's own unit tests and live doctor checks — exercising all of
+      # them here too just adds vendor-specific noise (e.g. a rate-limited free-tier key) without
+      # testing anything project-specific. All 6 passed at least once during this pin's
+      # validation; see git history on this file to bring one back if ever needed.
       matrix:
-        provider: [ollama, claude-subscription, copilot-subscription]
+        provider: [ollama, claude-subscription]
     env:
       HEALER_ENABLED: "true"
       HEALER_PROVIDER: ${{ matrix.provider }}
@@ -36,11 +45,6 @@ jobs:
       # claude-agent-sdk's own documented CI auth path (see `claude setup-token`) — takes the
       # place of an interactive `claude login`.
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-      # github-copilot-sdk falls back to GITHUB_TOKEN when there's no interactive `copilot`
-      # login — deliberately sourced from a *repo secret* (COPILOT_GITHUB_TOKEN, a PAT with
-      # Copilot Requests access) rather than the workflow's own automatic ${{ github.token }},
-      # since that automatic token has no Copilot access at all regardless of permissions.
-      GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -54,8 +58,6 @@ jobs:
       - name: Install Playwright browsers
         run: playwright install --with-deps chromium
 
-      # Only the provider actually under test in this matrix leg needs its extra installed — the
-      # other two providers' packages would just sit unused otherwise.
       - name: Install claude-agent-sdk
         if: matrix.provider == 'claude-subscription'
         run: pip install claude-agent-sdk
@@ -67,10 +69,6 @@ jobs:
         # produces a real executable, so this is the standard install path with no workaround
         # needed. Ubuntu runners ship Node.js already.
         run: npm install -g @anthropic-ai/claude-code
-
-      - name: Install github-copilot-sdk
-        if: matrix.provider == 'copilot-subscription'
-        run: pip install github-copilot-sdk
 
       - name: Run pytest
         run: pytest -v --tamash-report=tamash-report.html
