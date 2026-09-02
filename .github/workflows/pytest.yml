@@ -56,15 +56,19 @@ jobs:
           python-version: "3.12"
 
       - name: Install project dependencies
-        # `anthropic` extra installed unconditionally (cheap, pure-Python) since the anthropic
-        # matrix leg needs it — openai/gemini need no SDK at all (plain HTTP under the hood).
-        run: pip install -e ".[anthropic]"
+        run: pip install -e .
 
       - name: Install Playwright browsers
         run: playwright install --with-deps chromium
 
       # Only the provider actually under test in this matrix leg needs its extra installed — the
-      # other two providers' packages would just sit unused otherwise.
+      # other legs' packages would just sit unused otherwise. `.[anthropic]` would resolve against
+      # *this* project's own (nonexistent) extras, not tamash-playwright's — install the SDK
+      # directly instead; openai/gemini need no SDK at all (plain HTTP under the hood).
+      - name: Install anthropic
+        if: matrix.provider == 'anthropic'
+        run: pip install anthropic
+
       - name: Install claude-agent-sdk
         if: matrix.provider == 'claude-subscription'
         run: pip install claude-agent-sdk
