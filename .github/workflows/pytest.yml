@@ -25,7 +25,7 @@ jobs:
       # the shared app's state at a time — slower, but deterministic.
       max-parallel: 1
       matrix:
-        provider: [ollama, claude-subscription, copilot-subscription]
+        provider: [ollama, claude-subscription, copilot-subscription, openai, anthropic, gemini]
     env:
       HEALER_ENABLED: "true"
       HEALER_PROVIDER: ${{ matrix.provider }}
@@ -41,6 +41,13 @@ jobs:
       # Copilot Requests access) rather than the workflow's own automatic ${{ github.token }},
       # since that automatic token has no Copilot access at all regardless of permissions.
       GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+      # Plain API-key providers — no extra CLI/SDK install beyond the `anthropic` extra below.
+      OPENAI_MODEL: "gpt-4.1-mini"
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_MODEL: "claude-haiku-4-5"
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_MODEL: "gemini-2.5-flash"
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -49,7 +56,9 @@ jobs:
           python-version: "3.12"
 
       - name: Install project dependencies
-        run: pip install -e .
+        # `anthropic` extra installed unconditionally (cheap, pure-Python) since the anthropic
+        # matrix leg needs it — openai/gemini need no SDK at all (plain HTTP under the hood).
+        run: pip install -e ".[anthropic]"
 
       - name: Install Playwright browsers
         run: playwright install --with-deps chromium
