@@ -89,10 +89,14 @@ APP_BASE_URL=https://qtpsudhakar-vibetestq-hrm.up.railway.app/
 
 You can use one of the supported providers:
 
-- `ollama`
-- `openai`
-- `anthropic`
-- `gemini`
+- `ollama` / `ollama-local` (your own self-hosted Ollama server)
+- `openai` / `anthropic` / `gemini`
+- `tamash` — rule-based healing, no AI, no key at all
+- `claude-subscription` / `copilot-subscription` — uses an existing subscription login, no API key
+- `cursor-subscription` / `kiro-subscription` / `codex-subscription` — subscription-based, **local development only**
+
+Full setup for every one of these (auth, env vars, CI support) is in the
+[provider docs](https://qtpsudhakarproducts.github.io/tamash-playwright-support/providers.html).
 
 Example for OpenAI:
 
@@ -105,6 +109,14 @@ OPENAI_MODEL=gpt-4.1-mini
 The `APP_BASE_URL` is the base URL of the application you want to test.
 
 > If you are using Ollama locally, make sure the model is pulled and accessible before running the tests.
+
+Confirm everything's wired up correctly before running any tests:
+
+```bash
+tamash-playwright doctor
+```
+
+It calls your configured provider for real, flags locators missing a `.describe()` label, and tells you exactly what's wrong (and the fix) if anything's off.
 
 ---
 
@@ -189,26 +201,23 @@ Run a single test by name:
 pytest tests/test_sampletest.py -k login -v
 ```
 
-The project is configured in `pyproject.toml` to generate an HTML report automatically:
+The project is configured in `pyproject.toml` to generate two HTML reports automatically:
 
 ```toml
 [tool.pytest.ini_options]
-addopts = "--html=report.html --self-contained-html"
+addopts = "--html=report.html --self-contained-html --tamash-report=tamash-report.html"
 ```
 
 ---
 
 ## Step 6: Check the results
 
-After execution, open:
+Two reports come out of every run, and they show different things:
 
-```bash
-report.html
-```
+- **`report.html`** (`pytest-html`) — the standard pass/fail summary, durations, and captured output.
+- **`tamash-report.html`** (`tamash-playwright`'s own) — a step-by-step trace of every action, assertion, network call, and fixture, in order. This is the one that shows self-healing in detail: which provider recovered a broken locator, what it recovered *to*, token usage, and the full `attempts:` history (cache/ref/text/vision/action-recovery) when more than one attempt was made.
 
-This is a self-contained HTML report with the test summary, pass/fail status, durations, and captured output.
-
-You can also open it directly in a browser to inspect the test results.
+Open either directly in a browser to inspect the results.
 
 ---
 
@@ -223,6 +232,16 @@ Example log output:
 ```
 
 This is the core value of `tamash-playwright`: it reduces broken selector maintenance caused by UI changes.
+
+Runtime healing never edits your source, though — the broken locator stays broken and gets re-healed on every run until you fix it. To make a heal permanent:
+
+```bash
+tamash-playwright apply-heals --dry-run   # preview the source rewrite
+tamash-playwright apply-heals             # write it, and generate a verification script
+python .tamash-playwright/verify_heals.py # re-run just the affected tests with healing off
+```
+
+See the [Making heals permanent](https://qtpsudhakarproducts.github.io/tamash-playwright-support/apply-heals.html) guide for the full mechanics. If you'd rather hand this whole loop (setup → run → review → apply → verify) to an AI coding agent, `tamash-playwright init-skill` installs a packaged skill that teaches it — see [The AI agent skill](https://qtpsudhakarproducts.github.io/tamash-playwright-support/agent-skill.html).
 
 ---
 
