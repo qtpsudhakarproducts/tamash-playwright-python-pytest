@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--html=report.html --self-contained-html"
+addopts = "--html=report.html --self-contained-html --tamash-report=tamash-report.html"
 
 [build-system]
 requires = ["setuptools>=68"]
